@@ -9,6 +9,8 @@ const userRoutes = require('./Routes/UsersRouter');
 const SeoRoutes = require('./Routes/SeoRouter');
 const LogoRoutes = require('./Routes/Logo');
 const translationsRoutes = require('./Routes/TranslationRoter');
+const cors = require('cors');
+
 const {
     getDynamicModelOrCreate,
     getDynamicModel,
@@ -17,10 +19,11 @@ const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
 const app = express();
+app.use(cors());
 
 app.use(bodyParser.json());
 app.use(express.json());
-
+app.use(cors());
 // Setup multer for file uploads --start
 const uploadFolder = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadFolder)) {
