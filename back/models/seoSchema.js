@@ -25,7 +25,6 @@ const seoSchema = new mongoose.Schema(
         type: {
             type: String,
             required: true,
-            enum: ['page', 'post', 'category', 'tag'], // Add more options as needed
         },
     },
     { timestamps: true }
