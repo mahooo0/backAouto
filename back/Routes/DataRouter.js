@@ -132,31 +132,30 @@ router.post('/:collectionName', dynamicFileMiddleware, async (req, res) => {
 
         const schemaPaths = DynamicModel.schema.paths;
 
-        if (
-            schemaPaths.titleAz &&
-            schemaPaths.slugAz &&
-            document.titleAz &&
-            !document.slugAz
-        ) {
-            document.slugAz = slugify(document.titleAz);
-        }
-        if (
-            schemaPaths.titleEn &&
-            schemaPaths.slugEn &&
-            document.titleEn &&
-            !document.slugEn
-        ) {
-            document.slugEn = slugify(document.titleEn);
-        }
-        if (
-            schemaPaths.titleRu &&
-            schemaPaths.slugRu &&
-            document.titleRu &&
-            !document.slugRu
-        ) {
-            document.slugRu = slugify(document.titleRu);
+        if (document.title && typeof document.title === 'string') {
+            let title;
+            try {
+                // Ensure the title is parsed correctly
+                title = JSON.parse(document.title);
+            } catch (parseError) {
+                return res.status(400).json({
+                    error: 'Invalid JSON in title field',
+                    details: parseError.message,
+                });
+            }
+
+            // Now generate slugs for each language
+            const newslug = {
+                az: slugify(title.az),
+                en: slugify(title.en),
+                ru: slugify(title.ru),
+            };
+
+            document.title = title; // Update the title field to be the parsed object
+            document.slug = newslug; // Update the slug field with the generated slugs
         }
 
+        // Create and save the new document
         const newDocument = new DynamicModel(document);
         await newDocument.save();
 
@@ -166,7 +165,6 @@ router.post('/:collectionName', dynamicFileMiddleware, async (req, res) => {
     }
 });
 
-// Route to update a document by ID from a collection
 router.put('/:collectionName/:id', dynamicFileMiddleware, async (req, res) => {
     try {
         const { collectionName, id } = req.params;
@@ -186,6 +184,30 @@ router.put('/:collectionName/:id', dynamicFileMiddleware, async (req, res) => {
                 .json({ error: 'Schema not found for this collection' });
         }
 
+        // Check if title exists in the updated document and generate slugs if necessary
+        if (document.title && typeof document.title === 'string') {
+            let title;
+            try {
+                title = JSON.parse(document.title);
+            } catch (parseError) {
+                return res.status(400).json({
+                    error: 'Invalid JSON in title field',
+                    details: parseError.message,
+                });
+            }
+
+            // Generate slugs for each language
+            const newslug = {
+                az: slugify(title.az),
+                en: slugify(title.en),
+                ru: slugify(title.ru),
+            };
+
+            document.title = title; // Update the title to parsed object
+            document.slug = newslug; // Set the new slugs
+        }
+
+        // Update the document by ID with the new data
         const updatedDocument = await DynamicModel.findByIdAndUpdate(
             id,
             document,
