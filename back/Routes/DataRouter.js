@@ -61,8 +61,7 @@ const dynamicFileMiddleware = async (req, res, next) => {
             const uploadDir = path.resolve(__dirname, '../uploads');
 
             // const uploadDir = path.join(__dirname, 'uploads'); // Adjust to your upload folder
-            const baseUrl =
-                process.env.BASE_URL || 'https://backaouto.onrender.com'; // Fallback for development
+            const baseUrl = 'https://backaouto.onrender.com'; // Fallback for development
 
             for (const key in req.files) {
                 const fileData = req.files[key];
